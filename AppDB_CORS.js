@@ -20,26 +20,26 @@ class App extends Component {
   componentDidMount() {
     var requesttitle = 'Hello';
 
-    axios.get('https://serverapidbcollect.herokuapp.com/api/news')
+    axios.post('https://serverapidbcollect.herokuapp.com/api/news',requesttitle)
       .then(res => {
         const news = res.data;
         this.setState({ news: news.news });
       })
       .catch(error => console.log(error));
 
-    // axios.post('/api/mongo', requesttitle)
-    //   .then(res => {
-    //     const mongo = res.data;
-    //     this.setState({ mongo: mongo.news });
-    //   })
-    //   .catch(error => console.log(error));
+    axios.post('https://serverapidbcollect.herokuapp.com/api/mongo', requesttitle)
+      .then(res => {
+        const mongo = res.data;
+        this.setState({ mongo: mongo.news });
+      })
+      .catch(error => console.log(error));
 
-    // axios.post('/api/mssql', requesttitle)
-    //   .then(res => {
-    //     const mssql = res.data;
-    //     this.setState({ mssql: mssql.recordset.recordset });
-    //   })
-    //   .catch(error => console.log(error));
+    axios.post('https://serverapidbcollect.herokuapp.com/api/mssql',requesttitle)
+      .then(res => {
+        const mssql = res.data;
+        this.setState({ mssql: mssql.recordset.recordset });
+      })
+      .catch(error => console.log(error));
   };
 
   render() {
@@ -48,8 +48,9 @@ class App extends Component {
         <p style={divStyle}> Database Mongo </p>
         {this.state.mongo.map(item => (
           <li key={item._id}>
+            <h2>{item.ID}</h2>
             <h2>{item.Name}</h2>
-            <h2>{item.Phone}</h2>
+            <h2>{item.Description}</h2>
           </li>
         ))}
         <p style={divStyle}> Database MySQL </p>
@@ -62,9 +63,11 @@ class App extends Component {
         ))}
         <p style={divStyle}> Database SQL </p>
         {this.state.mssql.map(item => (
-          <li key={item.UniqueID}>
-            <h2>{item.Title}</h2>
-            <h2>{item.Picture}</h2>
+          <li key={item.ID}>
+            <h2>{item.IPAddress}</h2>
+            <h2>{item.Datatime}</h2>
+            <h2>{item.QuocGia}</h2>
+            <h2>{item.ThanhPho}</h2>
           </li>
         ))}
       </ul>

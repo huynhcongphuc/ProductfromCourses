@@ -1,50 +1,74 @@
 const express = require('express');
 const mysql = require('mysql');
-var sql = require('mssql');
+const sql = require('mssql');
 const app = express();
+const app2 = express();
 
 const port = process.env.PORT || 4000;
+
+
 //MSSQL server
 
-// var dbConfig = {
-//   server: "localhost",
-//   database: "FLISR_LOG",
-//   user: "phuchc",
-//   password: "123456",
-//   trustServerCertificate: true,
-//   port: 1433
-// };
+const dbConfig = {
+  server: "HCMCLDC.mssql.somee.com",
+  user: "phuchuynh247_SQLLogin_1",
+  password: "5nze3wax5g",
+  database: "HCMCLDC",
+  options: {
+    encrypt: false,
+    trustServerCertificate:false
+  },
+  port: 1433
+};
 
-// var conn = new sql.ConnectionPool(dbConfig);
+const conn = new sql.ConnectionPool(dbConfig);
 
-// conn.connect(function (err) {
-//   (err) ? console.log(err) : console.log(conn);
-// });
+conn.connect(function (err) {
+  (err) ? console.log(err) : console.log(conn);
+});
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
 
-// app.post('/api/mssql', (req, res) => {
-//   var sqlqr = "SELECT * From DataList";
-//   conn.query(sqlqr, function (err, recordset) {
-//     if (err) throw err;
-//     res.json({ recordset });
-//   });
-// });
+app.post('/api/mssql', (req, res) => {
+  var sqlqr = "SELECT TOP (10) [ID],[IPAddress],[Datetime],[Page],[Session],[QuocGia],[Tinh],[ThanhPho],[Cty],[Lat],[Lon] FROM IPRecord ORDER BY [ID] DESC";
+  conn.query(sqlqr, function (err, recordset) {
+    if (err) throw err;
+    res.json({ recordset });
+  });
+});
 
 //Mongo connection
-// var MongoClient = require('mongodb').MongoClient;
-// var db;
+const { MongoClient } = require('mongodb');
+var db;
+const uri = "mongodb+srv://Mongodb:PuHh1234@cluster0.y7au8.mongodb.net/mongodb?retryWrites=true&w=majority";
 
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+client.connect(err => {
+  db = client.db("MongoDB");
+});
+
+// Connect through localhost
 // MongoClient.connect('mongodb://localhost:27017', (err, client) => {
 //   // Client returned
 //   db = client.db('Data');
 // });
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
 
-// app.post('/api/mongo', (req, res) => {
-//   db.collection('Account').find().toArray(function (err, docs) {
-//     if (err) throw err;
-//     res.json({ news: docs });
-//   });
-// });
+app.post('/api/mongo', (req, res) => {
+  db.collection('Account').find().toArray(function (err, docs) {
+    if (err) throw err;
+    res.json({ news: docs });
+  });
+});
 
 // //Mysql Connection
 const connection = mysql.createConnection({
@@ -64,7 +88,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.get('/api/news', (req, res) => {
+app.post('/api/news', (req, res) => {
   var sql = "SELECT * FROM Data";
   connection.query(sql, function (err, results) {
     if (err) throw err;
